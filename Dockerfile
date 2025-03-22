@@ -25,6 +25,8 @@ RUN apt-get update && apt-get install -y \
   ros-${ROS_DISTRO}-rosbridge-suite \
   ros-${ROS_DISTRO}-foxglove-bridge \
   ros-${ROS_DISTRO}-rqt-graph \
+  ros-${ROS_DISTRO}-rplidar-ros \
+  ros-${ROS_DISTRO}-laser-geometry \
   libignition-plugin-dev \
   libignition-common4-dev \
   libignition-gazebo6-dev \
