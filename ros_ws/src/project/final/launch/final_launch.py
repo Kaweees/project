@@ -19,11 +19,6 @@ def generate_launch_description() -> LaunchDescription:
                 )
             ),
             Node(
-                package="ros_gz_example_application",
-                executable="teleop_keyboard",
-                name="teleop_keyboard",
-            ),
-            Node(
                 package="rqt_graph",
                 executable="rqt_graph",
                 name="rqt_graph",

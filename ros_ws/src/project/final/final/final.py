@@ -22,6 +22,10 @@ class Final(Node):
             LaserScan, "diff_drive/scan", self.scan_callback, 10
         )
 
+        self.x = 0
+        self.y = 0
+        self.theta = 0
+
         self.prev_points = []
 
     def distance(self, p1: tuple[float, float], p2: tuple[float, float]) -> float:
@@ -37,13 +41,27 @@ class Final(Node):
         points = [p for p in points if p is not None]
         A = np.array(self.prev_points)
         B = np.array(points)
-        if len(A) != 0 and len(B) != 0:
-            if len(A) > len(B):
-                A = A[: len(B)]
-            elif len(A) < len(B):
-                B = B[: len(A)]
-            T, _, _ = self.icp(A, B)
-            self.get_logger().info(f"T: {T}")
+        if len(A) == 0 or len(B) == 0:
+            return
+
+        if len(A) > len(B):
+            A = A[: len(B)]
+        elif len(A) < len(B):
+            B = B[: len(A)]
+        T, _, _ = self.icp(A, B)
+
+
+        self.x += math.sqrt(T[0][2] ** 2 + T[1][2] ** 2) * math.cos(self.theta)
+        self.y += math.sqrt(T[0][2] ** 2 + T[1][2] ** 2) * math.sin(self.theta)
+        self.theta -= math.atan2(T[1][0], T[0][0])
+
+        self.get_logger().info(f"x: {self.x}, y: {self.y}, theta: {self.theta}")
+
+        odom = Odometry()
+        odom.header.stamp = self.get_clock().now().to_msg()
+        odom.pose.pose.position.x = self.x
+        odom.pose.pose.position.y = self.y
+        self.publisher_.publish(odom)
 
         self.prev_points = points
 
@@ -115,8 +133,6 @@ class Final(Node):
         A: np.ndarray,
         B: np.ndarray,
         init_pose: np.ndarray | None = None,
-        max_iterations: int = 20,
-        tolerance: float = 0.001,
     ) -> tuple[np.ndarray, np.ndarray, int]:
         assert A.shape == B.shape
 
@@ -135,7 +151,7 @@ class Final(Node):
 
         prev_error = 0
 
-        for i in range(max_iterations):
+        for i in range(20):
             # find the nearest neighbors between the current source and destination points
             distances, indices = self.nearest_neighbor(src[:m, :].T, dst[:m, :].T)
 
@@ -147,7 +163,7 @@ class Final(Node):
 
             # check error
             mean_error = np.mean(distances)
-            if np.abs(prev_error - mean_error) < tolerance:
+            if np.abs(prev_error - mean_error) < 0.001:
                 break
             prev_error = mean_error
 

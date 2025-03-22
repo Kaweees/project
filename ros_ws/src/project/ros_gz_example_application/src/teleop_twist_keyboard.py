@@ -22,7 +22,7 @@ class TeleopKeyboard(Node):
         self.timer = self.create_timer(0.1, self.timer_callback)
         self.twist = Twist()
         self.linear_velocity = 0.5
-        self.angular_velocity = 0.35
+        self.angular_velocity = 0.5
 
         self.get_logger().info("Instructions for running node")
         self.get_logger().info("Press Keys: w/s ---> forward/backward")
