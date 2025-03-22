@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import math
 import copy
 import rclpy
@@ -7,12 +9,15 @@ from geometry_msgs.msg import Twist, Vector3, Pose2D
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 
+
 class Final(Node):
     def __init__(self):
-        super().__init__('final')
+        super().__init__("final")
 
         self.publisher_ = self.create_publisher(Odometry, "my_odom", 10)
-        self.subscriber_ = self.create_subscription(LaserScan, "diff_drive/scan", self.scan_callback, 10)
+        self.subscriber_ = self.create_subscription(
+            LaserScan, "diff_drive/scan", self.scan_callback, 10
+        )
 
         self.prev_points = []
 
@@ -29,7 +34,7 @@ class Final(Node):
         points = [p for p in points if p is not None]
 
         closest = self.closest_points(points)
-        
+
         print(self.center_of_mass(closest[1])[0] - self.center_of_mass(closest[0])[0])
         print(self.center_of_mass(closest[1])[1] - self.center_of_mass(closest[0])[1])
 
@@ -41,7 +46,12 @@ class Final(Node):
 
         angle = scan.angle_min
         for r in scan.ranges:
-            if math.isnan(r) or math.isinf(r) or r < scan.range_min or r > scan.range_max:
+            if (
+                math.isnan(r)
+                or math.isinf(r)
+                or r < scan.range_min
+                or r > scan.range_max
+            ):
                 points.append(None)
             else:
                 points.append((r * math.cos(angle), r * math.sin(angle)))
@@ -80,5 +90,6 @@ def main(args=None):
     final.destroy_node()
     rclpy.shutdown()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
