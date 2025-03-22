@@ -64,8 +64,8 @@ To get a local copy of the project up and running on your machine, follow these 
 3. Create a new ROS2 workspace
 
    ```sh
-   mkdir -p ros2_ws/src
-   cd ros2_ws
+   mkdir -p ros_ws/src
+   cd ros_ws
    ```
 
 4. Create a new ROS2 package

@@ -43,10 +43,10 @@ ros2:
 		--env="DISPLAY=novnc:0.0" \
 		--env="QT_X11_NO_MITSHM=1" \
 		--env="LIBGL_ALWAYS_INDIRECT=0" \
-		-v $(PWD)/ros_ws/:/root/ros2_ws/:delegated \
+		-v $(PWD)/ros_ws/:/root/ros_ws/:delegated \
 		-v zsh_data:/root/.config/zsh \
 		-v zsh_history:/root/.local/share/zinit \
-		-w /root/ros2_ws \
+		-w /root/ros_ws \
 		--name $(TARGET) \
 		${TARGET} \
 		tail -f /dev/null
