@@ -51,7 +51,7 @@ class Final(Node):
             elif len(A) < len(B):
                 B = B[: len(A)]
             T, _, _ = self.icp(A, B)
-            print(T)
+            self.get_logger().info(f"T: {T}")
 
         self.prev_points = points
 
