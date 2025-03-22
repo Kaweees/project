@@ -75,9 +75,9 @@ class DrawSquareOdom(Node):
             if self.distance_traveled < self.side_length:
                 # Move forward
                 msg.linear.x = self.linear_speed
-                self.get_logger().info(
-                    f"Moving forward: {self.distance_traveled:.2f}/{self.side_length:.2f} meters"
-                )
+                # self.get_logger().info(
+                #     f"Moving forward: {self.distance_traveled:.2f}/{self.side_length:.2f} meters"
+                # )
             else:
                 # Prepare for turning
                 self.current_state = self.TURNING
@@ -96,16 +96,16 @@ class DrawSquareOdom(Node):
             if abs(yaw_error) > self.yaw_tolerance:
                 # Turn using proportional control
                 msg.angular.z = self.angular_speed * (yaw_error / abs(yaw_error))
-                self.get_logger().info(
-                    f"Turning: Current={math.degrees(self.current_yaw):.1f}°, Target={math.degrees(self.target_yaw):.1f}°"
-                )
+                # self.get_logger().info(
+                #     f"Turning: Current={math.degrees(self.current_yaw):.1f}°, Target={math.degrees(self.target_yaw):.1f}°"
+                # )
             else:
                 # Finished turning, prepare for next side
                 self.current_state = self.MOVING
                 self.side_count += 1
                 if self.side_count >= 4:
                     self.current_state = self.FINISHED
-                    self.get_logger().info("Square completed!")
+                    # self.get_logger().info("Square completed!")
 
         self.vel_publisher.publish(msg)
 

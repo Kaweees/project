@@ -33,13 +33,25 @@ class Final(Node):
             self.prev_points = points
             return
 
+        # points = self.cart_points(scan)
+        # points = [p for p in points if p is not None]
+
+        # closest = self.closest_points(points)
+
+        # print(self.center_of_mass(closest[1])[0] - self.center_of_mass(closest[0])[0])
+        # print(self.center_of_mass(closest[1])[1] - self.center_of_mass(closest[0])[1])
+
         points = self.cart_points(scan)
         points = [p for p in points if p is not None]
-
-        closest = self.closest_points(points)
-
-        print(self.center_of_mass(closest[1])[0] - self.center_of_mass(closest[0])[0])
-        print(self.center_of_mass(closest[1])[1] - self.center_of_mass(closest[0])[1])
+        A = np.array(self.prev_points)
+        B = np.array(points)
+        if len(A) != 0 and len(B) != 0:
+            if len(A) > len(B):
+                A = A[: len(B)]
+            elif len(A) < len(B):
+                B = B[: len(A)]
+            T, _, _ = self.icp(A, B)
+            print(T)
 
         self.prev_points = points
 
@@ -89,9 +101,10 @@ class Final(Node):
     ) -> tuple[float, float]:
         return np.linalg.svd(points)
 
-
-    def best_fit_transform(self, A: np.ndarray, B: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        '''
+    def best_fit_transform(
+        self, A: np.ndarray, B: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """
         Calculates the least-squares best-fit transform that maps corresponding points A to B in m spatial dimensions
         Input:
         A: Nxm numpy array of corresponding points
@@ -100,7 +113,7 @@ class Final(Node):
         T: (m+1)x(m+1) homogeneous transformation matrix that maps A on to B
         R: mxm rotation matrix
         t: mx1 translation vector
-        '''
+        """
 
         assert A.shape == B.shape
 
@@ -120,22 +133,23 @@ class Final(Node):
 
         # special reflection case
         if np.linalg.det(R) < 0:
-        Vt[m-1,:] *= -1
-        R = np.dot(Vt.T, U.T)
+            Vt[m - 1, :] *= -1
+            R = np.dot(Vt.T, U.T)
 
         # translation
-        t = centroid_B.T - np.dot(R,centroid_A.T)
+        t = centroid_B.T - np.dot(R, centroid_A.T)
 
         # homogeneous transformation
-        T = np.identity(m+1)
+        T = np.identity(m + 1)
         T[:m, :m] = R
         T[:m, m] = t
 
         return T, R, t
 
-
-    def nearest_neighbor(self, src: np.ndarray, dst: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        '''
+    def nearest_neighbor(
+        self, src: np.ndarray, dst: np.ndarray
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """
         Find the nearest (Euclidean) neighbor in dst for each point in src
         Input:
             src: Nxm array of points
@@ -143,7 +157,7 @@ class Final(Node):
         Output:
             distances: Euclidean distances of the nearest neighbor
             indices: dst indices of the nearest neighbor
-        '''
+        """
 
         assert src.shape == dst.shape
 
@@ -152,9 +166,15 @@ class Final(Node):
         distances, indices = neigh.kneighbors(src, return_distance=True)
         return distances.ravel(), indices.ravel()
 
-
-    def icp(self, A: np.ndarray, B: np.ndarray, init_pose: np.ndarray | None = None, max_iterations: int = 20, tolerance: float = 0.001) -> tuple[np.ndarray, np.ndarray, int]:
-        '''
+    def icp(
+        self,
+        A: np.ndarray,
+        B: np.ndarray,
+        init_pose: np.ndarray | None = None,
+        max_iterations: int = 20,
+        tolerance: float = 0.001,
+    ) -> tuple[np.ndarray, np.ndarray, int]:
+        """
         The Iterative Closest Point method: finds best-fit transform that maps points A on to points B
         Input:
             A: Nxm numpy array of source mD points
@@ -166,7 +186,7 @@ class Final(Node):
             T: final homogeneous transformation that maps A on to B
             distances: Euclidean distances (errors) of the nearest neighbor
             i: number of iterations to converge
-        '''
+        """
 
         assert A.shape == B.shape
 
@@ -174,10 +194,10 @@ class Final(Node):
         m = A.shape[1]
 
         # make points homogeneous, copy them to maintain the originals
-        src = np.ones((m+1,A.shape[0]))
-        dst = np.ones((m+1,B.shape[0]))
-        src[:m,:] = np.copy(A.T)
-        dst[:m,:] = np.copy(B.T)
+        src = np.ones((m + 1, A.shape[0]))
+        dst = np.ones((m + 1, B.shape[0]))
+        src[:m, :] = np.copy(A.T)
+        dst[:m, :] = np.copy(B.T)
 
         # apply the initial pose estimation
         if init_pose is not None:
@@ -187,10 +207,10 @@ class Final(Node):
 
         for i in range(max_iterations):
             # find the nearest neighbors between the current source and destination points
-            distances, indices = nearest_neighbor(src[:m,:].T, dst[:m,:].T)
+            distances, indices = self.nearest_neighbor(src[:m, :].T, dst[:m, :].T)
 
             # compute the transformation between the current source and nearest destination points
-            T,_,_ = best_fit_transform(src[:m,:].T, dst[:m,indices].T)
+            T, _, _ = self.best_fit_transform(src[:m, :].T, dst[:m, indices].T)
 
             # update the current source
             src = np.dot(T, src)
@@ -202,9 +222,10 @@ class Final(Node):
             prev_error = mean_error
 
         # calculate final transformation
-        T,_,_ = best_fit_transform(A, src[:m,:].T)
+        T, _, _ = self.best_fit_transform(A, src[:m, :].T)
 
         return T, distances, i
+
 
 def main(args=None):
     rclpy.init(args=args)

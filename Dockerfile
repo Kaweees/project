@@ -34,7 +34,8 @@ RUN apt-get update && apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 RUN python3 -m pip install --no-cache-dir --upgrade pip \
-  ros2-graph
+  ros2-graph \
+  scikit-learn
 
 # Install the Gitstatus extension
 RUN git clone --depth=1 https://github.com/romkatv/gitstatus.git ~/gitstatus
