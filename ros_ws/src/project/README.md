@@ -76,5 +76,5 @@ Or start by creating a workspace and cloning the template repository:
 For a more detailed guide on using this template see [documentation](https://gazebosim.org/docs/latest/ros_gz_project_template_guide).
 
 ```zsh
-rm -rf build/ install/ log/ && clear && colcon build --symlink-install && source install/setup.zsh && ros2 launch ros_gz_example_application draw_square_odom_launch.py
+rm -rf build/ install/ log/ && clear && colcon build --symlink-install && source install/setup.zsh && ros2 run final final
 ```
