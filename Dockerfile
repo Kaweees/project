@@ -5,6 +5,7 @@ ARG BASE_IMAGE
 
 # Install necessary packages
 RUN apt-get update && apt-get install -y \
+  direnv \
   python3-pip \
   python3-venv \
   stow \
