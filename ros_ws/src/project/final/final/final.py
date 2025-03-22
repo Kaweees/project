@@ -28,6 +28,21 @@ class Final(Node):
 
         self.prev_points = []
 
+    def quaternion_from_euler(self, pitch, roll, yaw):
+        cy = math.cos(yaw * 0.5)
+        sy = math.sin(yaw * 0.5)
+        cr = math.cos(roll * 0.5)
+        sr = math.sin(roll * 0.5)
+        cp = math.cos(pitch * 0.5)
+        sp = math.sin(pitch * 0.5)
+
+        w = cy * cr * cp + sy * sr * sp
+        x = cy * sr * cp - sy * cr * sp
+        y = cy * cr * sp + sy * sr * cp
+        z = sy * cr * cp - cy * sr * sp
+
+        return (w, x, y, z)
+
     def distance(self, p1: tuple[float, float], p2: tuple[float, float]) -> float:
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
@@ -61,6 +76,12 @@ class Final(Node):
         odom.header.stamp = self.get_clock().now().to_msg()
         odom.pose.pose.position.x = self.x
         odom.pose.pose.position.y = self.y
+        q = self.quaternion_from_euler(0, 0, self.theta)
+        odom.pose.pose.orientation.w = q[0]
+        odom.pose.pose.orientation.x = q[1]
+        odom.pose.pose.orientation.y = q[2]
+        odom.pose.pose.orientation.z = q[3]
+
         self.publisher_.publish(odom)
 
         self.prev_points = points
