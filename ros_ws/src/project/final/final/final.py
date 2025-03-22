@@ -33,14 +33,6 @@ class Final(Node):
             self.prev_points = points
             return
 
-        # points = self.cart_points(scan)
-        # points = [p for p in points if p is not None]
-
-        # closest = self.closest_points(points)
-
-        # print(self.center_of_mass(closest[1])[0] - self.center_of_mass(closest[0])[0])
-        # print(self.center_of_mass(closest[1])[1] - self.center_of_mass(closest[0])[1])
-
         points = self.cart_points(scan)
         points = [p for p in points if p is not None]
         A = np.array(self.prev_points)
@@ -74,47 +66,9 @@ class Final(Node):
 
         return points
 
-    def closest_points(
-        self, points: list[tuple[float, float] | None]
-    ) -> tuple[list[tuple[float, float]], list[tuple[float, float]]]:
-        curr = []
-        prev = []
-        for p1 in points:
-            min_distance = 1000000000
-            min_p2 = None
-            for p2 in self.prev_points:
-                distance = self.distance(p1, p2)
-                if distance < min_distance:
-                    min_distance = distance
-                    min_p2 = p2
-
-            curr.append(p1)
-            prev.append(min_p2)
-
-        return (curr, prev)
-
-    def center_of_mass(self, points: list[tuple[float, float]]) -> tuple[float, float]:
-        return tuple(sum(col) / len(col) for col in zip(*points))
-
-    def get_closest_point(
-        self, points: list[tuple[float, float]]
-    ) -> tuple[float, float]:
-        return np.linalg.svd(points)
-
     def best_fit_transform(
         self, A: np.ndarray, B: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """
-        Calculates the least-squares best-fit transform that maps corresponding points A to B in m spatial dimensions
-        Input:
-        A: Nxm numpy array of corresponding points
-        B: Nxm numpy array of corresponding points
-        Returns:
-        T: (m+1)x(m+1) homogeneous transformation matrix that maps A on to B
-        R: mxm rotation matrix
-        t: mx1 translation vector
-        """
-
         assert A.shape == B.shape
 
         # get number of dimensions
@@ -149,16 +103,6 @@ class Final(Node):
     def nearest_neighbor(
         self, src: np.ndarray, dst: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray]:
-        """
-        Find the nearest (Euclidean) neighbor in dst for each point in src
-        Input:
-            src: Nxm array of points
-            dst: Nxm array of points
-        Output:
-            distances: Euclidean distances of the nearest neighbor
-            indices: dst indices of the nearest neighbor
-        """
-
         assert src.shape == dst.shape
 
         neigh = NearestNeighbors(n_neighbors=1)
@@ -174,20 +118,6 @@ class Final(Node):
         max_iterations: int = 20,
         tolerance: float = 0.001,
     ) -> tuple[np.ndarray, np.ndarray, int]:
-        """
-        The Iterative Closest Point method: finds best-fit transform that maps points A on to points B
-        Input:
-            A: Nxm numpy array of source mD points
-            B: Nxm numpy array of destination mD point
-            init_pose: (m+1)x(m+1) homogeneous transformation
-            max_iterations: exit algorithm after max_iterations
-            tolerance: convergence criteria
-        Output:
-            T: final homogeneous transformation that maps A on to B
-            distances: Euclidean distances (errors) of the nearest neighbor
-            i: number of iterations to converge
-        """
-
         assert A.shape == B.shape
 
         # get number of dimensions
