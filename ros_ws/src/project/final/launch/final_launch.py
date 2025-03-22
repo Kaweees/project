@@ -20,8 +20,8 @@ def generate_launch_description() -> LaunchDescription:
             ),
             Node(
                 package="ros_gz_example_application",
-                executable="draw_square_odom",
-                name="draw_square_odom",
+                executable="teleop_keyboard",
+                name="teleop_keyboard",
             ),
             Node(
                 package="rqt_graph",

@@ -22,6 +22,7 @@ setup(
     entry_points={
         "console_scripts": [
             "draw_square_odom = src.draw_square_odom:main",
+            "teleop_keyboard = src.teleop_twist_keyboard:main",
         ],
     },
 )
